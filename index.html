@@ -6,22 +6,9 @@
   <title>QC MFG Shop Monitor</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      background: #0f0f1a;
-      color: #e8e8f0;
-      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
-      min-height: 100vh;
-    }
+    html, body { background: #0f0f1a; color: #e8e8f0; font-family: 'Segoe UI', system-ui, Arial, sans-serif; min-height: 100vh; }
 
-    /* ══ HEADER ═══════════════════════════════════════════ */
-    .header {
-      background: linear-gradient(135deg, #12122a, #1a1a3e);
-      border-bottom: 2px solid #2a2a5a;
-      padding: 14px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    .header { background: linear-gradient(135deg, #12122a, #1a1a3e); border-bottom: 2px solid #2a2a5a; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
     .header-left { display: flex; align-items: baseline; gap: 20px; }
     .day-label { font-size: 48px; font-weight: 800; color: #e0e0ff; letter-spacing: -1px; line-height: 1; text-transform: uppercase; }
     .date-label { font-size: 15px; color: #6060a0; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -37,59 +24,51 @@
     .live-time { font-size: 26px; font-weight: 600; color: #8080bb; font-variant-numeric: tabular-nums; text-align: right; }
     .shift-lbl { font-size: 10px; color: #44448a; text-transform: uppercase; letter-spacing: 1px; text-align: right; margin-top: 2px; }
 
-    /* ══ BLOCKER BANNER ══════════════════════════════════ */
-    .blocker-bar {
-      background: linear-gradient(90deg, #2a0808, #180606);
-      border-left: 4px solid #ff4757;
+    /* Date nav bar */
+    .date-nav {
+      background: #0d0d22;
+      border-bottom: 1px solid #2a2a4a;
       padding: 8px 32px;
-      display: flex; align-items: center; gap: 10px;
-      font-size: 13px; color: #cc7777;
+      display: flex; align-items: center; justify-content: center; gap: 20px;
     }
+    .nav-btn {
+      background: #1a1a3a; border: 1px solid #3a3a6a; color: #8080cc;
+      padding: 6px 18px; border-radius: 6px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .nav-btn:hover { background: #2a2a5a; color: #c0c0ff; border-color: #6060aa; }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .nav-date-display { font-size: 15px; font-weight: 700; color: #c0c0ff; letter-spacing: 1px; min-width: 220px; text-align: center; }
+    .nav-date-display.future { color: #ffa502; }
+    .nav-date-display.past   { color: #555577; }
+    .today-btn {
+      background: transparent; border: 1px solid #3a3a5a; color: #555577;
+      padding: 4px 12px; border-radius: 5px; font-size: 11px; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .today-btn:hover { border-color: #6060aa; color: #8080cc; }
+    .today-btn.active { border-color: #2ed573; color: #2ed573; }
+
+    .blocker-bar { background: linear-gradient(90deg, #2a0808, #180606); border-left: 4px solid #ff4757; padding: 8px 32px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #cc7777; }
     .blocker-bar .blabel { font-size: 12px; font-weight: 700; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
     .blocker-bar strong { color: #ff8080; }
 
-    /* ══ PRODUCT SECTIONS GRID ══════════════════════════ */
-    .products-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding: 16px 32px 12px;
-    }
-
-    /* ══ PRODUCT CARD ═══════════════════════════════════ */
-    .product-card {
-      background: #111122;
-      border: 1px solid #2a2a44;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-    .product-header {
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #2a2a44;
-    }
+    .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 32px 12px; }
+    .product-card { background: #111122; border: 1px solid #2a2a44; border-radius: 8px; overflow: hidden; }
+    .product-header { padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a44; }
     .product-name { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #ddddff; }
     .product-progress { display: flex; align-items: center; gap: 10px; }
     .progress-bar { width: 80px; height: 5px; background: #2a2a44; border-radius: 3px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 3px; background: #2ed573; }
     .progress-text { font-size: 11px; color: #555577; white-space: nowrap; }
 
-    /* ══ TASK ROWS ══════════════════════════════════════ */
     .task-list { padding: 4px 0; }
-    .task-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 7px 16px;
-      border-bottom: 1px solid #1a1a30;
-    }
+    .task-row { display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-bottom: 1px solid #1a1a30; }
     .task-row:last-child { border-bottom: none; }
-    .task-row.done-row   { opacity: 0.45; }
+    .task-row.done-row { opacity: 0.45; }
     .task-row.blocked-row { background: #160808; }
     .star { font-size: 14px; flex-shrink: 0; width: 16px; text-align: center; }
-    .star.on  { color: #ffa502; }
-    .star.off { color: transparent; }
+    .star.on { color: #ffa502; } .star.off { color: transparent; }
     .cb { width: 18px; height: 18px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
     .cb-ns      { border: 2px solid #3a3a5a; background: transparent; }
     .cb-ip      { border: 2px solid #1e90ff; background: #08152e; color: #1e90ff; }
@@ -102,29 +81,21 @@
     .due-time { font-size: 11px; color: #444466; white-space: nowrap; flex-shrink: 0; min-width: 56px; text-align: right; }
     .due-time.overdue { color: #ff6b6b; font-weight: 600; }
 
-    /* ══ SUMMARY BAR ════════════════════════════════════ */
-    .summary-bar {
-      background: #0d0d20;
-      border-top: 1px solid #1e1e38;
-      padding: 9px 32px;
-      font-size: 13px; color: #888899; font-style: italic;
-    }
+    .summary-bar { background: #0d0d20; border-top: 1px solid #1e1e38; padding: 9px 32px; font-size: 13px; color: #888899; font-style: italic; }
     .summary-bar strong { color: #aaaacc; font-style: normal; }
 
-    /* ══ PIPELINE TIMELINE ══════════════════════════════ */
+    .no-tasks { text-align: center; padding: 60px 32px; color: #333355; font-size: 18px; }
+    .no-tasks .nt-day { font-size: 32px; font-weight: 800; color: #2a2a4a; margin-bottom: 8px; }
+
     .timeline-section { background: #0f0f1a; }
-    .tl-header {
-      border-top: 2px solid #2a2a4a;
-      padding: 12px 32px 8px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
+    .tl-header { border-top: 2px solid #2a2a4a; padding: 12px 32px 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .tl-title-group { display: flex; align-items: center; gap: 10px; }
     .tl-title { font-size: 17px; font-weight: 700; color: #8080bb; letter-spacing: 1.5px; text-transform: uppercase; }
     .tl-sub   { font-size: 12px; color: #444466; font-style: italic; }
     .legend { display: flex; gap: 14px; align-items: center; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; }
     .legend-dot  { width: 7px; height: 7px; border-radius: 50%; }
-    .tl-wrap { overflow-x: auto; padding: 0 32px 20px; }
+    .tl-wrap { overflow-x: auto; padding: 0 32px 80px; }
     .tl-table { border-collapse: collapse; width: 100%; font-size: 12px; }
     .tl-table thead th { padding: 5px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #3a3a5a; border-bottom: 1px solid #2a2a44; white-space: nowrap; }
     .tl-table thead th.cur-m { background: #161630; color: #6666aa; }
@@ -137,54 +108,23 @@
     .tl-table tbody tr.ov-row td { background: #130808; }
     .tl-table tbody td { padding: 7px 6px; border-bottom: 1px solid #1a1a32; vertical-align: middle; }
     .tl-table tbody td.cur-m { background: #111128; }
-    .tl-table tbody tr.ov-row td.cur-m { background: #160a0a; }
     .pj-name   { font-size: 13px; font-weight: 600; color: #ccccee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
     .pj-name.ov { color: #ff9090; }
     .pj-asgn   { font-size: 10px; color: #555577; margin-top: 1px; }
     .pj-client { font-size: 12px; color: #666688; }
     .pj-note   { font-size: 10px; color: #444466; margin-top: 2px; }
-    .sbadge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; }
+    .sbadge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
     .due-pill { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 5px; font-size: 12px; font-weight: 700; }
     .late-pill { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 5px; font-size: 9px; font-weight: 700; background: #2d0808; border: 1px dashed #ff4757; color: #ff4757; }
     .empty-dot { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: #1e1e32; }
 
-    /* ══ PRODUCT DEV SECTION ════════════════════════════ */
-    .devsection { background: #0f0f1a; padding: 0 32px 80px; }
-    .dev-header {
-      border-top: 2px solid #2a2a4a;
-      padding: 12px 0 8px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .dev-title { font-size: 17px; font-weight: 700; color: #556677; letter-spacing: 1.5px; text-transform: uppercase; }
-    .dev-sub   { font-size: 12px; color: #333355; font-style: italic; }
-    .dev-grid  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px; }
-    .dev-card  { background: #0d0d1e; border: 1px solid #1e1e38; border-radius: 8px; padding: 12px 16px; }
-    .dev-card-title { font-size: 13px; font-weight: 700; color: #7777aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .dev-item  { font-size: 12px; color: #555577; padding: 3px 0; border-bottom: 1px solid #1a1a2e; }
-    .dev-item:last-child { border-bottom: none; }
-    .dev-item .di-name { color: #8888bb; }
-    .dev-item .di-status { font-size: 10px; color: #444466; font-style: italic; margin-top: 1px; }
-
-    /* ══ FOOTER ════════════════════════════════════════ */
-    .footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(10,10,22,.97);
-      border-top: 1px solid #1e1e3a;
-      padding: 8px 24px;
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 13px; color: #44445a; z-index: 100;
-    }
+    .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,22,.97); border-top: 1px solid #1e1e3a; padding: 8px 24px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #44445a; z-index: 100; }
     .footer .brand { color: #55557a; font-weight: 600; }
     #countdown { color: #5555aa; font-style: italic; }
-
-    /* ══ LOADING STATE ══════════════════════════════════ */
-    .loading-msg { text-align: center; padding: 60px; color: #444466; font-size: 16px; }
-    .error-msg { text-align: center; padding: 40px; color: #ff4757; font-size: 14px; }
   </style>
 </head>
 <body>
 
-<!-- ══ HEADER ═════════════════════════════════════════════ -->
 <div class="header">
   <div class="header-left">
     <div class="day-label" id="day-label">—</div>
@@ -206,24 +146,28 @@
   </div>
 </div>
 
-<!-- ══ BLOCKER BANNER (injected if blockers exist) ═══════ -->
+<!-- Date Navigation -->
+<div class="date-nav">
+  <button class="nav-btn" id="btn-prev" onclick="changeDay(-1)">← Prev</button>
+  <div>
+    <div class="nav-date-display" id="nav-date-display">—</div>
+  </div>
+  <button class="nav-btn" id="btn-next" onclick="changeDay(1)">Next →</button>
+  <button class="today-btn" id="today-btn" onclick="goToToday()">Today</button>
+</div>
+
 <div id="blocker-bar" class="blocker-bar" style="display:none;">
   <span style="font-size:16px;">⚠️</span>
   <span class="blabel">Blocked</span>
   <span id="blocker-text"></span>
 </div>
 
-<!-- ══ MAIN CONTENT ═══════════════════════════════════════ -->
-<div id="main-content">
-  <div class="loading-msg">Loading shop data...</div>
-</div>
+<div id="main-content"><div style="text-align:center;padding:60px;color:#333355;font-size:16px;">Loading shop data...</div></div>
 
-<!-- ══ SUMMARY ════════════════════════════════════════════ -->
 <div class="summary-bar" id="summary-bar" style="display:none;">
   <strong>Summary:</strong> <span id="summary-text"></span>
 </div>
 
-<!-- ══ PIPELINE TIMELINE ══════════════════════════════════ -->
 <div class="timeline-section" id="pipeline-section" style="display:none;">
   <div class="tl-header">
     <div class="tl-title-group">
@@ -243,21 +187,13 @@
     <table class="tl-table">
       <thead>
         <tr>
-          <th class="col-nm">Project</th>
-          <th class="col-cl">Client</th>
-          <th class="col-st">Status</th>
-          <th class="col-mo cur-m" id="th-m0">—</th>
-          <th class="col-mo" id="th-m1">—</th>
-          <th class="col-mo" id="th-m2">—</th>
-          <th class="col-mo" id="th-m3">—</th>
-          <th class="col-mo" id="th-m4">—</th>
-          <th class="col-mo" id="th-m5">—</th>
-          <th class="col-mo" id="th-m6">—</th>
-          <th class="col-mo" id="th-m7">—</th>
-          <th class="col-mo" id="th-m8">—</th>
-          <th class="col-mo" id="th-m9">—</th>
-          <th class="col-mo" id="th-m10">—</th>
-          <th class="col-mo" id="th-m11">—</th>
+          <th class="col-nm">Project</th><th class="col-cl">Client</th><th class="col-st">Status</th>
+          <th class="col-mo cur-m" id="th-m0">—</th><th class="col-mo" id="th-m1">—</th>
+          <th class="col-mo" id="th-m2">—</th><th class="col-mo" id="th-m3">—</th>
+          <th class="col-mo" id="th-m4">—</th><th class="col-mo" id="th-m5">—</th>
+          <th class="col-mo" id="th-m6">—</th><th class="col-mo" id="th-m7">—</th>
+          <th class="col-mo" id="th-m8">—</th><th class="col-mo" id="th-m9">—</th>
+          <th class="col-mo" id="th-m10">—</th><th class="col-mo" id="th-m11">—</th>
         </tr>
       </thead>
       <tbody id="pipeline-body"></tbody>
@@ -265,17 +201,6 @@
   </div>
 </div>
 
-<!-- ══ PRODUCT DEV (Matt only) ════════════════════════════ -->
-<div class="devsection" id="dev-section" style="display:none;">
-  <div class="dev-header">
-    <span style="font-size:17px;">🔧</span>
-    <span class="dev-title">Product Development</span>
-    <span class="dev-sub">Internal — Matt's workload</span>
-  </div>
-  <div class="dev-grid" id="dev-grid"></div>
-</div>
-
-<!-- ══ FOOTER ═════════════════════════════════════════════ -->
 <div class="footer">
   <span class="brand">🏭 QC MFG Shop Monitor</span>
   <span id="countdown">Refreshing in 60s</span>
@@ -283,78 +208,112 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════
-// CONFIGURATION — paste your Apps Script Web App URL here
-// ════════════════════════════════════════════════════════
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycby_2BLSLR7lwlO_Ypvo5b2krJ4qPcg0Uoxkwn15iy1s5t1oceyBu5GlYEKFsE5oqlMY/exec';
-
-// Month labels
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzExvXzW8ODeC7Jqqm5JGmMyXM3zr6KRq0qbQQML6gr5t_qA8VmxFYCr7szFULM9UwZIQ/exec';
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-// ── Clock ────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────
+let currentDate = new Date();
+currentDate.setHours(0,0,0,0);
+let availableDates = [];
+let autoRefreshTimer = 60;
+let isToday = true;
+
+// ── Clock ─────────────────────────────────────────────────
 function tick() {
-  const d = new Date();
-  const h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+  const d = new Date(), h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
   const ampm = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12;
   document.getElementById('clock').textContent = h12 + ':' + m + ' ' + ampm;
-  document.getElementById('day-label').textContent = DAYS[d.getDay()];
+}
+tick(); setInterval(tick, 10000);
+
+// ── Date navigation ───────────────────────────────────────
+function formatDateDisplay(d) {
+  return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+function isoDate(d) {
+  return d.toISOString().split('T')[0];
+}
+function updateHeaderDate() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  isToday = currentDate.getTime() === today.getTime();
+  const isFuture = currentDate > today;
+  const isPast   = currentDate < today;
+
+  document.getElementById('day-label').textContent = DAYS[currentDate.getDay()];
+  const shift = isToday ? (' · ' + getShift(new Date().getHours())) : (isFuture ? ' · Scheduled' : ' · Past');
   document.getElementById('date-label').textContent =
-    MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' · ' + getShift(h);
+    MONTHS[currentDate.getMonth()] + ' ' + currentDate.getDate() + ', ' + currentDate.getFullYear() + shift;
+
+  const nd = document.getElementById('nav-date-display');
+  nd.textContent = isToday ? 'Today — ' + formatDateDisplay(currentDate) : formatDateDisplay(currentDate);
+  nd.className = 'nav-date-display' + (isFuture ? ' future' : isPast ? ' past' : '');
+
+  const tb = document.getElementById('today-btn');
+  tb.className = 'today-btn' + (isToday ? ' active' : '');
 }
 function getShift(h) {
   if (h < 12) return 'Morning Shift';
   if (h < 17) return 'Afternoon Shift';
   return 'Evening';
 }
-tick(); setInterval(tick, 10000);
+function changeDay(delta) {
+  const next = new Date(currentDate);
+  next.setDate(next.getDate() + delta);
+  currentDate = next;
+  updateHeaderDate();
+  loadData();
+}
+function goToToday() {
+  currentDate = new Date(); currentDate.setHours(0,0,0,0);
+  updateHeaderDate();
+  loadData();
+}
 
-// ── Countdown ────────────────────────────────────────────
-let secs = 60;
+// ── Countdown ─────────────────────────────────────────────
 setInterval(function() {
-  secs--;
-  if (secs <= 0) { secs = 60; loadData(); }
-  document.getElementById('countdown').textContent = 'Refreshing in ' + secs + 's';
+  if (!isToday) return; // Don't auto-refresh on future/past days
+  autoRefreshTimer--;
+  if (autoRefreshTimer <= 0) { autoRefreshTimer = 60; loadData(); }
+  document.getElementById('countdown').textContent = isToday
+    ? 'Refreshing in ' + autoRefreshTimer + 's'
+    : 'Manual navigation mode';
 }, 1000);
 
-// ── Status helpers ───────────────────────────────────────
+// ── Status helpers ────────────────────────────────────────
 function cbClass(s) {
   s = (s||'').toLowerCase();
-  if (s === 'done' || s === 'complete') return 'cb-done';
-  if (s === 'in progress' || s === 'active') return 'cb-ip';
-  if (s === 'blocked') return 'cb-blocked';
+  if (s==='done'||s==='complete') return 'cb-done';
+  if (s==='in progress'||s==='active') return 'cb-ip';
+  if (s==='blocked') return 'cb-blocked';
   return 'cb-ns';
 }
 function cbIcon(s) {
   s = (s||'').toLowerCase();
-  if (s === 'done' || s === 'complete') return '✓';
-  if (s === 'in progress' || s === 'active') return '▶';
-  if (s === 'blocked') return '✕';
+  if (s==='done'||s==='complete') return '✓';
+  if (s==='in progress'||s==='active') return '▶';
+  if (s==='blocked') return '✕';
   return '';
 }
 function rowClass(s) {
   s = (s||'').toLowerCase();
-  if (s === 'done' || s === 'complete') return 'done-row';
-  if (s === 'blocked') return 'blocked-row';
+  if (s==='done'||s==='complete') return 'done-row';
+  if (s==='blocked') return 'blocked-row';
   return '';
 }
-
-// ── Pipeline status badge ────────────────────────────────
 function statusBadge(s) {
-  s = (s||'').trim();
   const map = {
-    'In Progress':    'background:#0a1a35;color:#4aadff;',
-    'Planning':       'background:#1e1e38;color:#7777aa;',
-    'At Risk':        'background:#2d0a0a;color:#ff7070;',
-    'Ready to Ship':  'background:#1e1200;color:#ffba4a;',
-    'Complete':       'background:#081e10;color:#2ed573;',
-    'Overdue':        'background:#2d0a0a;color:#ff7070;',
+    'In Progress':   'background:#0a1a35;color:#4aadff;',
+    'Planning':      'background:#1e1e38;color:#7777aa;',
+    'At Risk':       'background:#2d0a0a;color:#ff7070;',
+    'Ready to Ship': 'background:#1e1200;color:#ffba4a;',
+    'Complete':      'background:#081e10;color:#2ed573;',
+    'Overdue':       'background:#2d0a0a;color:#ff7070;',
   };
-  const style = map[s] || 'background:#1e1e38;color:#7777aa;';
-  return `<span class="sbadge" style="${style}">${s}</span>`;
+  return `<span class="sbadge" style="${map[s]||'background:#1e1e38;color:#7777aa;'}">${s}</span>`;
 }
 
-// ── Build month headers ──────────────────────────────────
+// ── Month headers ─────────────────────────────────────────
 function buildMonthHeaders() {
   const now = new Date();
   for (let i = 0; i < 12; i++) {
@@ -362,266 +321,160 @@ function buildMonthHeaders() {
     const el = document.getElementById('th-m' + i);
     if (!el) continue;
     let label = MONTHS[d.getMonth()];
-    if (i === 0 || d.getMonth() === 0) label += '<br><span style="font-size:8px;opacity:.5;">' + d.getFullYear() + '</span>';
+    if (i===0||d.getMonth()===0) label += '<br><span style="font-size:8px;opacity:.5;">'+d.getFullYear()+'</span>';
     el.innerHTML = label;
   }
 }
 buildMonthHeaders();
 
-// ── Due pill for pipeline ────────────────────────────────
 function duePill(dueMonth, colIndex, status) {
   if (dueMonth === colIndex) {
-    const now = new Date();
-    const isOverdue = status === 'Overdue';
-    if (isOverdue) return `<div class="late-pill">LATE</div>`;
+    if (status==='Overdue') return `<div class="late-pill">LATE</div>`;
     const colors = {
-      'In Progress':   'background:#0a1a35;border:1px solid #1e90ff;color:#1e90ff;',
-      'Planning':      'background:#1e1e38;border:1px solid #555577;color:#7777aa;',
-      'At Risk':       'background:#2d0808;border:1px solid #ff4757;color:#ff4757;',
-      'Ready to Ship': 'background:#1e1200;border:1px solid #ffa502;color:#ffa502;',
-      'Complete':      'background:#081e10;border:1px solid #2ed573;color:#2ed573;',
+      'In Progress':  'background:#0a1a35;border:1px solid #1e90ff;color:#1e90ff;',
+      'Planning':     'background:#1e1e38;border:1px solid #555577;color:#7777aa;',
+      'At Risk':      'background:#2d0808;border:1px solid #ff4757;color:#ff4757;',
+      'Ready to Ship':'background:#1e1200;border:1px solid #ffa502;color:#ffa502;',
+      'Complete':     'background:#081e10;border:1px solid #2ed573;color:#2ed573;',
     };
-    const style = colors[status] || colors['Planning'];
-    const d = new Date(now.getFullYear(), now.getMonth() + colIndex, 1);
-    return `<div class="due-pill" style="${style}">${d.getDate() > 15 ? 'EOM' : d.getDate()}</div>`;
+    return `<div class="due-pill" style="${colors[status]||colors['Planning']}">•</div>`;
   }
   return `<span class="empty-dot"></span>`;
 }
 
-// ── Main render ──────────────────────────────────────────
+// ── Render ────────────────────────────────────────────────
 function render(data) {
-  // Stats
+  if (data.availableDates) availableDates = data.availableDates;
+
   const tasks = data.tasks || [];
-  const total = tasks.length;
-  const done  = tasks.filter(t => ['done','complete'].includes((t.status||'').toLowerCase())).length;
-  const prog  = tasks.filter(t => ['in progress','active'].includes((t.status||'').toLowerCase())).length;
-  const block = tasks.filter(t => (t.status||'').toLowerCase() === 'blocked').length;
+  document.getElementById('stat-total').textContent = tasks.length;
+  document.getElementById('stat-done').textContent  = tasks.filter(t=>['done','complete'].includes((t.status||'').toLowerCase())).length;
+  document.getElementById('stat-prog').textContent  = tasks.filter(t=>['in progress','active'].includes((t.status||'').toLowerCase())).length;
+  document.getElementById('stat-block').textContent = tasks.filter(t=>(t.status||'').toLowerCase()==='blocked').length;
 
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-done').textContent  = done;
-  document.getElementById('stat-prog').textContent  = prog;
-  document.getElementById('stat-block').textContent = block;
-
-  // Blocker banner
-  const blockers = tasks.filter(t => (t.status||'').toLowerCase() === 'blocked');
+  // Blockers
+  const blockers = tasks.filter(t=>(t.status||'').toLowerCase()==='blocked');
   const bb = document.getElementById('blocker-bar');
   if (blockers.length > 0) {
     bb.style.display = 'flex';
     document.getElementById('blocker-text').innerHTML =
-      blockers.map(b => `<strong>${b.task}</strong>${b.note ? ' — ' + b.note : ''}`).join(' &nbsp;|&nbsp; ');
-  } else {
-    bb.style.display = 'none';
+      blockers.map(b=>`<strong>${b.task}</strong>${b.note?' — '+b.note:''}`).join(' &nbsp;|&nbsp; ');
+  } else { bb.style.display = 'none'; }
+
+  // No tasks state
+  if (tasks.length === 0) {
+    const dow = DAYS[currentDate.getDay()];
+    const isWeekend = currentDate.getDay()===0||currentDate.getDay()===6;
+    document.getElementById('main-content').innerHTML = `
+      <div class="no-tasks">
+        <div class="nt-day">${dow}</div>
+        <div>${isWeekend ? 'Weekend — shop closed.' : 'No tasks scheduled for this day yet.'}</div>
+        <div style="margin-top:12px;font-size:13px;color:#2a2a4a;">Add rows to the Schedule tab in Google Sheets to populate this day.</div>
+      </div>`;
+    document.getElementById('summary-bar').style.display = 'none';
+    return;
   }
 
-  // Group tasks by product/job
+  // Group by job
   const groups = {};
-  tasks.forEach(t => {
-    const g = t.job || 'General';
-    if (!groups[g]) groups[g] = [];
-    groups[g].push(t);
-  });
-
-  // Build product cards
-  const jobOrder = data.jobOrder || Object.keys(groups);
-  const leftJobs  = [];
-  const rightJobs = [];
-  jobOrder.forEach((j, i) => { if (groups[j]) { if (i % 2 === 0) leftJobs.push(j); else rightJobs.push(j); } });
+  const jobOrder = data.jobOrder || [];
+  tasks.forEach(t => { const g = t.job||'General'; if (!groups[g]) groups[g] = []; groups[g].push(t); });
+  const allJobs = jobOrder.length ? jobOrder : Object.keys(groups);
+  const leftJobs  = allJobs.filter((_,i)=>i%2===0).filter(j=>groups[j]);
+  const rightJobs = allJobs.filter((_,i)=>i%2===1).filter(j=>groups[j]);
 
   function buildCard(jobName) {
-    const jobTasks = groups[jobName] || [];
-    const doneCount = jobTasks.filter(t => ['done','complete'].includes((t.status||'').toLowerCase())).length;
-    const pct = jobTasks.length ? Math.round(doneCount / jobTasks.length * 100) : 0;
-    const progressColor = pct === 0 && jobTasks.some(t => (t.status||'').toLowerCase() === 'blocked') ? '#ff4757' : '#2ed573';
-    const progressTextColor = pct === 0 && jobTasks.some(t => (t.status||'').toLowerCase() === 'blocked') ? '#ff6b6b' : '#555577';
-
-    let rows = jobTasks.map(t => {
-      const priority = (t.priority||'').toLowerCase() === 'high' ? 'on' : 'off';
-      const rc = rowClass(t.status);
-      const isOverdue = t.dueTime && t.dueTime !== '—' && (t.status||'').toLowerCase() !== 'done';
-      const assignDisplay = (t.assignee||'').toUpperCase() || '<span class="any">ANY</span>';
-      return `
-        <div class="task-row ${rc}">
-          <span class="star ${priority}">★</span>
-          <div class="cb ${cbClass(t.status)}">${cbIcon(t.status)}</div>
-          <span class="task-name-text">${t.task}</span>
-          <span class="assignees">${assignDisplay}</span>
-          <span class="due-time">${t.dueTime || '—'}</span>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="product-card">
-        <div class="product-header">
-          <div class="product-name">${jobName}</div>
-          <div class="product-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${progressColor};"></div></div>
-            <span class="progress-text" style="color:${progressTextColor};">${doneCount} of ${jobTasks.length} done</span>
-          </div>
-        </div>
-        <div class="task-list">${rows}</div>
+    const jt = groups[jobName]||[];
+    const done = jt.filter(t=>['done','complete'].includes((t.status||'').toLowerCase())).length;
+    const pct  = jt.length ? Math.round(done/jt.length*100) : 0;
+    const hasBlock = jt.some(t=>(t.status||'').toLowerCase()==='blocked');
+    const pColor = hasBlock && pct===0 ? '#ff4757' : '#2ed573';
+    const ptColor = hasBlock && pct===0 ? '#ff6b6b' : '#555577';
+    const rows = jt.map(t=>{
+      const pri = (t.priority||'').toLowerCase()==='high' ? 'on' : 'off';
+      return `<div class="task-row ${rowClass(t.status)}">
+        <span class="star ${pri}">★</span>
+        <div class="cb ${cbClass(t.status)}">${cbIcon(t.status)}</div>
+        <span class="task-name-text">${t.task}</span>
+        <span class="assignees">${t.assignee?t.assignee.toUpperCase():'<span class="any">ANY</span>'}</span>
+        <span class="due-time">${t.dueTime||'—'}</span>
       </div>`;
+    }).join('');
+    return `<div class="product-card">
+      <div class="product-header">
+        <div class="product-name">${jobName}</div>
+        <div class="product-progress">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${pColor};"></div></div>
+          <span class="progress-text" style="color:${ptColor};">${done} of ${jt.length} done</span>
+        </div>
+      </div>
+      <div class="task-list">${rows}</div>
+    </div>`;
   }
 
-  const maxLen = Math.max(leftJobs.length, rightJobs.length);
-  let gridHTML = '';
-  for (let i = 0; i < maxLen; i++) {
-    const left  = leftJobs[i]  ? buildCard(leftJobs[i])  : '<div></div>';
-    const right = rightJobs[i] ? buildCard(rightJobs[i]) : '<div></div>';
-    gridHTML += `<div style="display:contents;">${left}${right}</div>`;
-  }
-
-  document.getElementById('main-content').innerHTML =
-    `<div class="products-grid">${leftJobs.map(buildCard).join('')}${rightJobs.map(buildCard).join('')}</div>`;
-
-  // Rebuild grid properly
-  let leftCol = leftJobs.map(buildCard).join('');
-  let rightCol = rightJobs.map(buildCard).join('');
   document.getElementById('main-content').innerHTML = `
     <div class="products-grid">
-      <div style="display:flex;flex-direction:column;gap:16px;">${leftCol}</div>
-      <div style="display:flex;flex-direction:column;gap:16px;">${rightCol}</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">${leftJobs.map(buildCard).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">${rightJobs.map(buildCard).join('')}</div>
     </div>`;
 
   // Summary
   const sb = document.getElementById('summary-bar');
-  if (data.summary) {
+  if (data.summary && data.summary !== 'Update this cell each morning with a one-line summary of the day\'s work.' && !data.summary.includes('Update with day summary')) {
     sb.style.display = 'block';
     document.getElementById('summary-text').textContent = data.summary;
-  } else {
-    sb.style.display = 'none';
-  }
+  } else { sb.style.display = 'none'; }
 
   // Pipeline
-  const pipeline = data.pipeline || [];
+  const pipeline = data.pipeline||[];
   if (pipeline.length > 0) {
     document.getElementById('pipeline-section').style.display = 'block';
     const now = new Date();
-    const tbody = document.getElementById('pipeline-body');
-    tbody.innerHTML = pipeline.map(p => {
+    document.getElementById('pipeline-body').innerHTML = pipeline.map(p => {
       const dueDate = p.dueDate ? new Date(p.dueDate) : null;
-      const dueMonthOffset = dueDate ? (dueDate.getFullYear() - now.getFullYear()) * 12 + dueDate.getMonth() - now.getMonth() : -1;
-      const isOverdue = p.status === 'Overdue';
-      const cells = Array.from({length:12}, (_,i) => {
-        const isCur = i === 0;
-        return `<td style="text-align:center;" ${isCur?'class="cur-m"':''}>${duePill(dueMonthOffset, i, p.status)}</td>`;
-      }).join('');
-      return `
-        <tr class="${isOverdue?'ov-row':''}">
-          <td><div class="pj-name ${isOverdue?'ov':''}">${p.project}</div><div class="pj-asgn">${p.assignee||''}</div></td>
-          <td><div class="pj-client">${p.client||''}</div>${p.note?`<div class="pj-note">${p.note}</div>`:''}</td>
-          <td>${statusBadge(p.status)}</td>
-          ${cells}
-        </tr>`;
+      const dueOff  = dueDate ? (dueDate.getFullYear()-now.getFullYear())*12+dueDate.getMonth()-now.getMonth() : -1;
+      const cells = Array.from({length:12},(_,i)=>`<td style="text-align:center;" ${i===0?'class="cur-m"':''}>${duePill(dueOff,i,p.status)}</td>`).join('');
+      return `<tr class="${p.status==='Overdue'?'ov-row':''}">
+        <td><div class="pj-name ${p.status==='Overdue'?'ov':''}">${p.project}</div><div class="pj-asgn">${p.assignee||''}</div></td>
+        <td><div class="pj-client">${p.client||''}</div>${p.note?`<div class="pj-note">${p.note}</div>`:''}</td>
+        <td>${statusBadge(p.status)}</td>${cells}</tr>`;
     }).join('');
   }
 
-  // Product Dev
-  const dev = data.productDev || [];
-  if (dev.length > 0) {
-    document.getElementById('dev-section').style.display = 'block';
-    document.getElementById('dev-grid').innerHTML = dev.map(cat => `
-      <div class="dev-card">
-        <div class="dev-card-title">${cat.category}</div>
-        ${(cat.items||[]).map(item => `
-          <div class="dev-item">
-            <div class="di-name">${item.name}</div>
-            <div class="di-status">${item.status||'—'}</div>
-          </div>`).join('')}
-      </div>`).join('');
-  }
-
-  // Last updated
-  document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 
-// ── Load from Google Sheets ──────────────────────────────
+// ── Load data ─────────────────────────────────────────────
 function loadData() {
-  if (SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    // Demo mode — show placeholder data
-    render(DEMO_DATA);
-    return;
-  }
-  fetch(SHEET_URL + '?t=' + Date.now())
+  updateHeaderDate();
+  const dateParam = isoDate(currentDate);
+  const url = SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE'
+    ? null
+    : SHEET_URL + '?date=' + dateParam + '&t=' + Date.now();
+
+  if (!url) { render(buildDemoForDate(currentDate)); return; }
+
+  fetch(url)
     .then(r => r.json())
     .then(data => render(data))
     .catch(err => {
       document.getElementById('main-content').innerHTML =
-        `<div class="error-msg">Could not load sheet data. Check your Apps Script URL.<br><small>${err}</small></div>`;
+        `<div style="text-align:center;padding:40px;color:#ff4757;">Could not load data.<br><small>${err}</small></div>`;
     });
 }
 
-// ── Demo / placeholder data ──────────────────────────────
-const DEMO_DATA = {
-  summary: "Field Company mitts in progress — Rivendell Happisack pattern cut complete. NASA Edu Bags 1 sewing underway. QCF shoe orders in queue.",
-  tasks: [
-    // Field Company
-    { job: "Field Company — Mitts",       task: "Pattern Cut",              assignee: "KAT",              status: "Done",        dueTime: "8:00 AM",  priority: "high" },
-    { job: "Field Company — Mitts",       task: "Sewing — Palm Panel",      assignee: "BRITTANY / MEL",   status: "In Progress", dueTime: "11:00 AM", priority: "high" },
-    { job: "Field Company — Mitts",       task: "Sewing — Thumb Gusset",    assignee: "SARAH",            status: "In Progress", dueTime: "11:00 AM", priority: "high" },
-    { job: "Field Company — Mitts",       task: "Assembly & Turn",          assignee: "ANY",              status: "Not Started", dueTime: "1:00 PM",  priority: "" },
-    { job: "Field Company — Mitts",       task: "QC & Packing",             assignee: "JESS",             status: "Not Started", dueTime: "3:00 PM",  priority: "" },
-    // Rivendell Happisack
-    { job: "Rivendell — Happisack",       task: "Pattern Cut — All Pieces", assignee: "COOPER",           status: "Done",        dueTime: "7:30 AM",  priority: "high" },
-    { job: "Rivendell — Happisack",       task: "Sewing — Main Body",       assignee: "MORGAN / SARAH",   status: "In Progress", dueTime: "12:00 PM", priority: "high" },
-    { job: "Rivendell — Happisack",       task: "Zipper Install",           assignee: "MEL",              status: "Not Started", dueTime: "2:00 PM",  priority: "" },
-    { job: "Rivendell — Happisack",       task: "Bartacking & Straps",      assignee: "JAMES",            status: "Blocked",     dueTime: "3:00 PM",  priority: "", note: "Strap webbing on order" },
-    // Rivendell Grabsack
-    { job: "Rivendell — Grabsack",        task: "Pattern Cut",              assignee: "KAT",              status: "Not Started", dueTime: "TBD",      priority: "" },
-    { job: "Rivendell — Grabsack",        task: "Sewing",                   assignee: "ANY",              status: "Not Started", dueTime: "TBD",      priority: "" },
-    // NASA Edu Bags
-    { job: "NASA — Edu Bag 1",            task: "Material Prep & Cut",      assignee: "MIKE",             status: "Done",        dueTime: "8:00 AM",  priority: "high" },
-    { job: "NASA — Edu Bag 1",            task: "Sewing — Main Assembly",   assignee: "BRITTANY / JAMES", status: "In Progress", dueTime: "1:00 PM",  priority: "high" },
-    { job: "NASA — Edu Bag 1",            task: "Logo Embroidery",          assignee: "MORGAN",           status: "Not Started", dueTime: "TBD",      priority: "" },
-    { job: "NASA — Edu Bag 1",            task: "Final QC & Pack",          assignee: "JESS",             status: "Not Started", dueTime: "TBD",      priority: "" },
-    // QCF Shoe Orders
-    { job: "QCF — Shoe Order #1001",      task: "Pattern Pull & Cut",       assignee: "KAT",              status: "Not Started", dueTime: "TBD",      priority: "" },
-    { job: "QCF — Shoe Order #1001",      task: "Lasting & Assembly",       assignee: "MATT",             status: "Not Started", dueTime: "TBD",      priority: "" },
-    // QCF Other
-    { job: "QCF — Tote Bag #0001",        task: "Cut & Sew",                assignee: "SARAH / MEL",      status: "Not Started", dueTime: "TBD",      priority: "" },
-    { job: "QCF — Duffel Bag #0003",      task: "Cut & Sew",                assignee: "ANY",              status: "Not Started", dueTime: "TBD",      priority: "" },
-    { job: "QCF — Shoe Repairs",          task: "Intake & Assessment",      assignee: "JESS",             status: "Not Started", dueTime: "TBD",      priority: "" },
-  ],
-  pipeline: [
-    { project: "Rivendell Happisack",      client: "Rivendell",  assignee: "Full Team",       status: "In Progress",   dueDate: "2026-05-15" },
-    { project: "Rivendell Grabsack",       client: "Rivendell",  assignee: "Full Team",       status: "Planning",      dueDate: "2026-06-30" },
-    { project: "Rivendell Backabike",      client: "Rivendell",  assignee: "TBD",             status: "Planning",      dueDate: "2026-08-01" },
-    { project: "Field Company Mitts",      client: "Field Co.",  assignee: "Brittany / Mel",  status: "In Progress",   dueDate: "2026-05-01" },
-    { project: "NASA Edu Bag 1",           client: "NASA / Amentum", assignee: "Brittany / James", status: "In Progress", dueDate: "2026-05-20" },
-    { project: "NASA Edu Bag 2",           client: "NASA / Amentum", assignee: "TBD",             status: "Planning",  dueDate: "2026-07-01" },
-    { project: "NASA Edu Bag 3",           client: "NASA / Amentum", assignee: "TBD",             status: "Planning",  dueDate: "2026-09-01" },
-    { project: "QCF Tote Bag #0001",       client: "QCF",        assignee: "Sarah / Mel",     status: "Planning",      dueDate: "2026-05-30" },
-    { project: "QCF Duffel Bag #0003",     client: "QCF",        assignee: "TBD",             status: "Planning",      dueDate: "2026-06-15" },
-  ],
-  productDev: [
-    {
-      category: "Footwear Platform",
-      items: [
-        { name: "New Comfort Last",         status: "CNC prototype pending" },
-        { name: "Channel Construction",     status: "3D print concept phase" },
-        { name: "Zellerfeld Submission",    status: "Design in progress" },
-        { name: "eTPU Midsole Sourcing",    status: "DSC Portland — contact pending" },
-      ]
-    },
-    {
-      category: "Brand / Identity",
-      items: [
-        { name: "First Hand — Trademark",   status: "USPTO Classes 25 & 18 pending" },
-        { name: "QCF → First Hand Rollout", status: "Sub-line launch ~12 months" },
-        { name: "Hardwick Colorways",       status: "9 selected, Firefly prompts ready" },
-        { name: "Concepts Boston Outreach", status: "First retail target — not yet contacted" },
-      ]
-    },
-    {
-      category: "Tech / Machinery",
-      items: [
-        { name: "Dahao NSP File Gen",       status: "EMB→NSP converter working" },
-        { name: "DXF → Machine Workflow",   status: "Bypassing Caliglua — in progress" },
-        { name: "Gerber Jagged Cut Fix",    status: "Support engaged" },
-        { name: "Shop Monitor (this!)",     status: "Google Sheets integration next" },
-      ]
-    }
-  ]
-};
+function buildDemoForDate(d) {
+  const dow = d.getDay();
+  if (dow === 0 || dow === 6) return { tasks: [], pipeline: [], summary: '' };
+  return {
+    tasks: [
+      { job: "Demo — Field Company Mitts", task: "Pattern Cut", assignee: "KAT", status: "Done", dueTime: "8:00 AM", priority: "High" },
+      { job: "Demo — Field Company Mitts", task: "Sewing", assignee: "BRITTANY", status: "In Progress", dueTime: "11:00 AM", priority: "High" },
+      { job: "Demo — NASA Edu Bag 1", task: "Assembly", assignee: "JAMES", status: "Not Started", dueTime: "1:00 PM", priority: "" },
+    ],
+    pipeline: [], summary: 'Demo mode — connect your Google Sheet to see real data.'
+  };
+}
 
 // Initial load
 loadData();
