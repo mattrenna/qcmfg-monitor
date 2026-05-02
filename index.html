@@ -1,1 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QC MFG Shop Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #0f0f1a; color: #e8e8f0; font-family: 'Segoe UI', system-ui, Arial, sans-serif; min-height: 100vh; }
 
+    .header { background: linear-gradient(135deg, #12122a, #1a1a3e); border-bottom: 2px solid #2a2a5a; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: baseline; gap: 20px; }
+    .day-label { font-size: 48px; font-weight: 800; color: #e0e0ff; letter-spacing: -1px; line-height: 1; text-transform: uppercase; }
+    .date-label { font-size: 15px; color: #6060a0; letter-spacing: 0.5px; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 28px; }
+    .stat-chip { display: flex; flex-direction: column; align-items: center; }
+    .stat-chip .num { font-size: 26px; font-weight: 700; line-height: 1; }
+    .stat-chip .lbl { font-size: 10px; color: #555577; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .stat-chip.total .num { color: #8080bb; }
+    .stat-chip.done  .num { color: #2ed573; }
+    .stat-chip.prog  .num { color: #1e90ff; }
+    .stat-chip.block .num { color: #ff4757; }
+    .stat-divider { width: 1px; height: 36px; background: #2a2a4a; }
+    .live-time { font-size: 26px; font-weight: 600; color: #8080bb; font-variant-numeric: tabular-nums; text-align: right; }
+    .shift-lbl { font-size: 10px; color: #44448a; text-transform: uppercase; letter-spacing: 1px; text-align: right; margin-top: 2px; }
+
+    /* Date nav bar */
+    .date-nav {
+      background: #0d0d22;
+      border-bottom: 1px solid #2a2a4a;
+      padding: 8px 32px;
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+    }
+    .nav-btn {
+      background: #1a1a3a; border: 1px solid #3a3a6a; color: #8080cc;
+      padding: 6px 18px; border-radius: 6px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .nav-btn:hover { background: #2a2a5a; color: #c0c0ff; border-color: #6060aa; }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .nav-date-display { font-size: 15px; font-weight: 700; color: #c0c0ff; letter-spacing: 1px; min-width: 220px; text-align: center; }
+    .nav-date-display.future { color: #ffa502; }
+    .nav-date-display.past   { color: #555577; }
+    .today-btn {
+      background: transparent; border: 1px solid #3a3a5a; color: #555577;
+      padding: 4px 12px; border-radius: 5px; font-size: 11px; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .today-btn:hover { border-color: #6060aa; color: #8080cc; }
+    .today-btn.active { border-color: #2ed573; color: #2ed573; }
+
+    .blocker-bar { background: linear-gradient(90deg, #2a0808, #180606); border-left: 4px solid #ff4757; padding: 8px 32px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #cc7777; }
+    .blocker-bar .blabel { font-size: 12px; font-weight: 700; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
+    .blocker-bar strong { color: #ff8080; }
+
+    .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 32px 12px; }
+    .product-card { background: #111122; border: 1px solid #2a2a44; border-radius: 8px; overflow: hidden; }
+    .product-header { padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a44; }
+    .product-name { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #ddddff; }
+    .product-progress { display: flex; align-items: center; gap: 10px; }
+    .progress-bar { width: 80px; height: 5px; background: #2a2a44; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: #2ed573; }
+    .progress-text { font-size: 11px; color: #555577; white-space: nowrap; }
+
+    .task-list { padding: 4px 0; }
+    .task-row { display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-bottom: 1px solid #1a1a30; }
+    .task-row:last-child { border-bottom: none; }
+    .task-row.done-row { opacity: 0.45; }
+    .task-row.blocked-row { background: #160808; }
+    .star { font-size: 14px; flex-shrink: 0; width: 16px; text-align: center; }
+    .star.on { color: #ffa502; } .star.off { color: transparent; }
+    .cb { width: 18px; height: 18px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+    .cb-ns      { border: 2px solid #3a3a5a; background: transparent; }
+    .cb-ip      { border: 2px solid #1e90ff; background: #08152e; color: #1e90ff; }
+    .cb-done    { border: 2px solid #2ed573; background: #081e10; color: #2ed573; }
+    .cb-blocked { border: 2px solid #ff4757; background: #2a0808; color: #ff4757; }
+    .task-name-text { font-size: 14px; font-weight: 600; color: #ccccee; flex: 1; line-height: 1.3; }
+    .task-row.done-row .task-name-text { text-decoration: line-through; color: #555572; }
+    .assignees { font-size: 12px; color: #6666aa; white-space: nowrap; flex-shrink: 0; font-style: italic; }
+    .assignees .any { color: #444466; }
+    .due-time { font-size: 11px; color: #444466; white-space: nowrap; flex-shrink: 0; min-width: 56px; text-align: right; }
+    .due-time.overdue { color: #ff6b6b; font-weight: 600; }
+
+    .summary-bar { background: #0d0d20; border-top: 1px solid #1e1e38; padding: 9px 32px; font-size: 13px; color: #888899; font-style: italic; }
+    .summary-bar strong { color: #aaaacc; font-style: normal; }
+
+    .no-tasks { text-align: center; padding: 60px 32px; color: #333355; font-size: 18px; }
+    .no-tasks .nt-day { font-size: 32px; font-weight: 800; color: #2a2a4a; margin-bottom: 8px; }
+
+    .timeline-section { background: #0f0f1a; }
+    .tl-header { border-top: 2px solid #2a2a4a; padding: 12px 32px 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .tl-title-group { display: flex; align-items: center; gap: 10px; }
+    .tl-title { font-size: 17px; font-weight: 700; color: #8080bb; letter-spacing: 1.5px; text-transform: uppercase; }
+    .tl-sub   { font-size: 12px; color: #444466; font-style: italic; }
+    .legend { display: flex; gap: 14px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+    .legend-dot  { width: 7px; height: 7px; border-radius: 50%; }
+    .tl-wrap { overflow-x: auto; padding: 0 32px 80px; }
+    .tl-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+    .tl-table thead th { padding: 5px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #3a3a5a; border-bottom: 1px solid #2a2a44; white-space: nowrap; }
+    .tl-table thead th.cur-m { background: #161630; color: #6666aa; }
+    .tl-table thead th.col-nm { text-align: left; width: 200px; color: #444466; }
+    .tl-table thead th.col-cl { text-align: left; width: 130px; color: #444466; }
+    .tl-table thead th.col-st { text-align: left; width: 122px; color: #444466; }
+    .tl-table thead th.col-mo { text-align: center; width: 56px; }
+    .tl-table tbody tr:nth-child(odd)  td { background: #111120; }
+    .tl-table tbody tr:nth-child(even) td { background: #0f0f1a; }
+    .tl-table tbody tr.ov-row td { background: #130808; }
+    .tl-table tbody td { padding: 7px 6px; border-bottom: 1px solid #1a1a32; vertical-align: middle; }
+    .tl-table tbody td.cur-m { background: #111128; }
+    .pj-name   { font-size: 13px; font-weight: 600; color: #ccccee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+    .pj-name.ov { color: #ff9090; }
+    .pj-asgn   { font-size: 10px; color: #555577; margin-top: 1px; }
+    .pj-client { font-size: 12px; color: #666688; }
+    .pj-note   { font-size: 10px; color: #444466; margin-top: 2px; }
+    .sbadge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .due-pill { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 5px; font-size: 12px; font-weight: 700; }
+    .late-pill { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 24px; border-radius: 5px; font-size: 9px; font-weight: 700; background: #2d0808; border: 1px dashed #ff4757; color: #ff4757; }
+    .empty-dot { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: #1e1e32; }
+
+    .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,22,.97); border-top: 1px solid #1e1e3a; padding: 8px 24px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #44445a; z-index: 100; }
+    .footer .brand { color: #55557a; font-weight: 600; }
+    #countdown { color: #5555aa; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="day-label" id="day-label">—</div>
+    <div>
+      <div class="date-label" id="date-label">Loading...</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="stat-chip total"><span class="num" id="stat-total">—</span><span class="lbl">Tasks</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-chip done"><span class="num" id="stat-done">—</span><span class="lbl">Done</span></div>
+    <div class="stat-chip prog"><span class="num" id="stat-prog">—</span><span class="lbl">Active</span></div>
+    <div class="stat-chip block"><span class="num" id="stat-block">—</span><span class="lbl">Blocked</span></div>
+    <div class="stat-divider"></div>
+    <div>
+      <div class="live-time" id="clock">—</div>
+      <div class="shift-lbl">Live Monitor</div>
+    </div>
+  </div>
+</div>
+
+<!-- Date Navigation -->
+<div class="date-nav">
+  <button class="nav-btn" id="btn-prev" onclick="changeDay(-1)">← Prev</button>
+  <div>
+    <div class="nav-date-display" id="nav-date-display">—</div>
+  </div>
+  <button class="nav-btn" id="btn-next" onclick="changeDay(1)">Next →</button>
+  <button class="today-btn" id="today-btn" onclick="goToToday()">Today</button>
+</div>
+
+<div id="blocker-bar" class="blocker-bar" style="display:none;">
+  <span style="font-size:16px;">⚠️</span>
+  <span class="blabel">Blocked</span>
+  <span id="blocker-text"></span>
+</div>
+
+<div id="main-content"><div style="text-align:center;padding:60px;color:#333355;font-size:16px;">Loading shop data...</div></div>
+
+<div class="summary-bar" id="summary-bar" style="display:none;">
+  <strong>Summary:</strong> <span id="summary-text"></span>
+</div>
+
+<div class="timeline-section" id="pipeline-section" style="display:none;">
+  <div class="tl-header">
+    <div class="tl-title-group">
+      <span style="font-size:17px;">📅</span>
+      <span class="tl-title">Project Pipeline</span>
+      <span class="tl-sub">Next 12 Months</span>
+    </div>
+    <div class="legend">
+      <span class="legend-item" style="color:#4aadff;"><span class="legend-dot" style="background:#1e90ff;"></span>In Progress</span>
+      <span class="legend-item" style="color:#ffba4a;"><span class="legend-dot" style="background:#ffa502;"></span>Ready to Ship</span>
+      <span class="legend-item" style="color:#ff7070;"><span class="legend-dot" style="background:#ff4757;"></span>At Risk</span>
+      <span class="legend-item" style="color:#7777aa;"><span class="legend-dot" style="background:#555577;"></span>Planning</span>
+      <span class="legend-item" style="color:#55dd88;"><span class="legend-dot" style="background:#2ed573;"></span>Complete</span>
+    </div>
+  </div>
+  <div class="tl-wrap">
+    <table class="tl-table">
+      <thead>
+        <tr>
+          <th class="col-nm">Project</th><th class="col-cl">Client</th><th class="col-st">Status</th>
+          <th class="col-mo cur-m" id="th-m0">—</th><th class="col-mo" id="th-m1">—</th>
+          <th class="col-mo" id="th-m2">—</th><th class="col-mo" id="th-m3">—</th>
+          <th class="col-mo" id="th-m4">—</th><th class="col-mo" id="th-m5">—</th>
+          <th class="col-mo" id="th-m6">—</th><th class="col-mo" id="th-m7">—</th>
+          <th class="col-mo" id="th-m8">—</th><th class="col-mo" id="th-m9">—</th>
+          <th class="col-mo" id="th-m10">—</th><th class="col-mo" id="th-m11">—</th>
+        </tr>
+      </thead>
+      <tbody id="pipeline-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="brand">🏭 QC MFG Shop Monitor</span>
+  <span id="countdown">Refreshing in 60s</span>
+  <span id="last-updated">—</span>
+</div>
+
+<script>
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzPwVN_6pD0oHfNlFNP4M1uDok7zXxbyngO0Yl2IvVBDkVeFtigRnsFU3mfLSrJRxft/exec';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// ── State ─────────────────────────────────────────────────
+let currentDate = new Date();
+currentDate.setHours(0,0,0,0);
+let availableDates = [];
+let autoRefreshTimer = 60;
+let isToday = true;
+
+// ── Clock ─────────────────────────────────────────────────
+function tick() {
+  const d = new Date(), h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12;
+  document.getElementById('clock').textContent = h12 + ':' + m + ' ' + ampm;
+}
+tick(); setInterval(tick, 10000);
+
+// ── Date navigation ───────────────────────────────────────
+function formatDateDisplay(d) {
+  return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+function isoDate(d) {
+  return d.toISOString().split('T')[0];
+}
+function updateHeaderDate() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  isToday = currentDate.getTime() === today.getTime();
+  const isFuture = currentDate > today;
+  const isPast   = currentDate < today;
+
+  document.getElementById('day-label').textContent = DAYS[currentDate.getDay()];
+  const shift = isToday ? (' · ' + getShift(new Date().getHours())) : (isFuture ? ' · Scheduled' : ' · Past');
+  document.getElementById('date-label').textContent =
+    MONTHS[currentDate.getMonth()] + ' ' + currentDate.getDate() + ', ' + currentDate.getFullYear() + shift;
+
+  const nd = document.getElementById('nav-date-display');
+  nd.textContent = isToday ? 'Today — ' + formatDateDisplay(currentDate) : formatDateDisplay(currentDate);
+  nd.className = 'nav-date-display' + (isFuture ? ' future' : isPast ? ' past' : '');
+
+  const tb = document.getElementById('today-btn');
+  tb.className = 'today-btn' + (isToday ? ' active' : '');
+}
+function getShift(h) {
+  if (h < 12) return 'Morning Shift';
+  if (h < 17) return 'Afternoon Shift';
+  return 'Evening';
+}
+function changeDay(delta) {
+  const next = new Date(currentDate);
+  next.setDate(next.getDate() + delta);
+  currentDate = next;
+  updateHeaderDate();
+  loadData();
+}
+function goToToday() {
+  currentDate = new Date(); currentDate.setHours(0,0,0,0);
+  updateHeaderDate();
+  loadData();
+}
+
+// ── Countdown ─────────────────────────────────────────────
+setInterval(function() {
+  if (!isToday) return; // Don't auto-refresh on future/past days
+  autoRefreshTimer--;
+  if (autoRefreshTimer <= 0) { autoRefreshTimer = 60; loadData(); }
+  document.getElementById('countdown').textContent = isToday
+    ? 'Refreshing in ' + autoRefreshTimer + 's'
+    : 'Manual navigation mode';
+}, 1000);
+
+// ── Status helpers ────────────────────────────────────────
+function cbClass(s) {
+  s = (s||'').toLowerCase();
+  if (s==='done'||s==='complete') return 'cb-done';
+  if (s==='in progress'||s==='active') return 'cb-ip';
+  if (s==='blocked') return 'cb-blocked';
+  return 'cb-ns';
+}
+function cbIcon(s) {
+  s = (s||'').toLowerCase();
+  if (s==='done'||s==='complete') return '✓';
+  if (s==='in progress'||s==='active') return '▶';
+  if (s==='blocked') return '✕';
+  return '';
+}
+function rowClass(s) {
+  s = (s||'').toLowerCase();
+  if (s==='done'||s==='complete') return 'done-row';
+  if (s==='blocked') return 'blocked-row';
+  return '';
+}
+function statusBadge(s) {
+  const map = {
+    'In Progress':   'background:#0a1a35;color:#4aadff;',
+    'Planning':      'background:#1e1e38;color:#7777aa;',
+    'At Risk':       'background:#2d0a0a;color:#ff7070;',
+    'Ready to Ship': 'background:#1e1200;color:#ffba4a;',
+    'Complete':      'background:#081e10;color:#2ed573;',
+    'Overdue':       'background:#2d0a0a;color:#ff7070;',
+  };
+  return `<span class="sbadge" style="${map[s]||'background:#1e1e38;color:#7777aa;'}">${s}</span>`;
+}
+
+// ── Month headers ─────────────────────────────────────────
+function buildMonthHeaders() {
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const el = document.getElementById('th-m' + i);
+    if (!el) continue;
+    let label = MONTHS[d.getMonth()];
+    if (i===0||d.getMonth()===0) label += '<br><span style="font-size:8px;opacity:.5;">'+d.getFullYear()+'</span>';
+    el.innerHTML = label;
+  }
+}
+buildMonthHeaders();
+
+function duePill(dueMonth, colIndex, status) {
+  if (dueMonth === colIndex) {
+    if (status==='Overdue') return `<div class="late-pill">LATE</div>`;
+    const colors = {
+      'In Progress':  'background:#0a1a35;border:1px solid #1e90ff;color:#1e90ff;',
+      'Planning':     'background:#1e1e38;border:1px solid #555577;color:#7777aa;',
+      'At Risk':      'background:#2d0808;border:1px solid #ff4757;color:#ff4757;',
+      'Ready to Ship':'background:#1e1200;border:1px solid #ffa502;color:#ffa502;',
+      'Complete':     'background:#081e10;border:1px solid #2ed573;color:#2ed573;',
+    };
+    return `<div class="due-pill" style="${colors[status]||colors['Planning']}">•</div>`;
+  }
+  return `<span class="empty-dot"></span>`;
+}
+
+// ── Render ────────────────────────────────────────────────
+function render(data) {
+  if (data.availableDates) availableDates = data.availableDates;
+
+  const tasks = data.tasks || [];
+  document.getElementById('stat-total').textContent = tasks.length;
+  document.getElementById('stat-done').textContent  = tasks.filter(t=>['done','complete'].includes((t.status||'').toLowerCase())).length;
+  document.getElementById('stat-prog').textContent  = tasks.filter(t=>['in progress','active'].includes((t.status||'').toLowerCase())).length;
+  document.getElementById('stat-block').textContent = tasks.filter(t=>(t.status||'').toLowerCase()==='blocked').length;
+
+  // Blockers
+  const blockers = tasks.filter(t=>(t.status||'').toLowerCase()==='blocked');
+  const bb = document.getElementById('blocker-bar');
+  if (blockers.length > 0) {
+    bb.style.display = 'flex';
+    document.getElementById('blocker-text').innerHTML =
+      blockers.map(b=>`<strong>${b.task}</strong>${b.note?' — '+b.note:''}`).join(' &nbsp;|&nbsp; ');
+  } else { bb.style.display = 'none'; }
+
+  // No tasks state
+  if (tasks.length === 0) {
+    const dow = DAYS[currentDate.getDay()];
+    const isWeekend = currentDate.getDay()===0||currentDate.getDay()===6;
+    document.getElementById('main-content').innerHTML = `
+      <div class="no-tasks">
+        <div class="nt-day">${dow}</div>
+        <div>${isWeekend ? 'Weekend — shop closed.' : 'No tasks scheduled for this day yet.'}</div>
+        <div style="margin-top:12px;font-size:13px;color:#2a2a4a;">Add rows to the Schedule tab in Google Sheets to populate this day.</div>
+      </div>`;
+    document.getElementById('summary-bar').style.display = 'none';
+    return;
+  }
+
+  // Group by job
+  const groups = {};
+  const jobOrder = data.jobOrder || [];
+  tasks.forEach(t => { const g = t.job||'General'; if (!groups[g]) groups[g] = []; groups[g].push(t); });
+  const allJobs = jobOrder.length ? jobOrder : Object.keys(groups);
+  const leftJobs  = allJobs.filter((_,i)=>i%2===0).filter(j=>groups[j]);
+  const rightJobs = allJobs.filter((_,i)=>i%2===1).filter(j=>groups[j]);
+
+  function buildCard(jobName) {
+    const jt = groups[jobName]||[];
+    const done = jt.filter(t=>['done','complete'].includes((t.status||'').toLowerCase())).length;
+    const pct  = jt.length ? Math.round(done/jt.length*100) : 0;
+    const hasBlock = jt.some(t=>(t.status||'').toLowerCase()==='blocked');
+    const pColor = hasBlock && pct===0 ? '#ff4757' : '#2ed573';
+    const ptColor = hasBlock && pct===0 ? '#ff6b6b' : '#555577';
+    const rows = jt.map(t=>{
+      const pri = (t.priority||'').toLowerCase()==='high' ? 'on' : 'off';
+      return `<div class="task-row ${rowClass(t.status)}">
+        <span class="star ${pri}">★</span>
+        <div class="cb ${cbClass(t.status)}">${cbIcon(t.status)}</div>
+        <span class="task-name-text">${t.task}</span>
+        <span class="assignees">${t.assignee?t.assignee.toUpperCase():'<span class="any">ANY</span>'}</span>
+        <span class="due-time">${t.dueTime||'—'}</span>
+      </div>`;
+    }).join('');
+    return `<div class="product-card">
+      <div class="product-header">
+        <div class="product-name">${jobName}</div>
+        <div class="product-progress">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${pColor};"></div></div>
+          <span class="progress-text" style="color:${ptColor};">${done} of ${jt.length} done</span>
+        </div>
+      </div>
+      <div class="task-list">${rows}</div>
+    </div>`;
+  }
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="products-grid">
+      <div style="display:flex;flex-direction:column;gap:16px;">${leftJobs.map(buildCard).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">${rightJobs.map(buildCard).join('')}</div>
+    </div>`;
+
+  // Summary
+  const sb = document.getElementById('summary-bar');
+  if (data.summary && data.summary !== 'Update this cell each morning with a one-line summary of the day\'s work.' && !data.summary.includes('Update with day summary')) {
+    sb.style.display = 'block';
+    document.getElementById('summary-text').textContent = data.summary;
+  } else { sb.style.display = 'none'; }
+
+  // Pipeline
+  const pipeline = data.pipeline||[];
+  if (pipeline.length > 0) {
+    document.getElementById('pipeline-section').style.display = 'block';
+    const now = new Date();
+    document.getElementById('pipeline-body').innerHTML = pipeline.map(p => {
+      const dueDate = p.dueDate ? new Date(p.dueDate) : null;
+      const dueOff  = dueDate ? (dueDate.getFullYear()-now.getFullYear())*12+dueDate.getMonth()-now.getMonth() : -1;
+      const cells = Array.from({length:12},(_,i)=>`<td style="text-align:center;" ${i===0?'class="cur-m"':''}>${duePill(dueOff,i,p.status)}</td>`).join('');
+      return `<tr class="${p.status==='Overdue'?'ov-row':''}">
+        <td><div class="pj-name ${p.status==='Overdue'?'ov':''}">${p.project}</div><div class="pj-asgn">${p.assignee||''}</div></td>
+        <td><div class="pj-client">${p.client||''}</div>${p.note?`<div class="pj-note">${p.note}</div>`:''}</td>
+        <td>${statusBadge(p.status)}</td>${cells}</tr>`;
+    }).join('');
+  }
+
+  document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Load data ─────────────────────────────────────────────
+function loadData() {
+  updateHeaderDate();
+  const dateParam = isoDate(currentDate);
+  const url = SHEET_URL + '?date=' + dateParam + '&t=' + Date.now();
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => render(data))
+    .catch(err => {
+      document.getElementById('main-content').innerHTML =
+        `<div style="text-align:center;padding:40px;color:#ff4757;">Could not load data.<br><small>${err}</small></div>`;
+    });
+}
+
+function buildDemoForDate(d) {
+  const dow = d.getDay();
+  if (dow === 0 || dow === 6) return { tasks: [], pipeline: [], summary: '' };
+  return {
+    tasks: [
+      { job: "Demo — Field Company Mitts", task: "Pattern Cut", assignee: "KAT", status: "Done", dueTime: "8:00 AM", priority: "High" },
+      { job: "Demo — Field Company Mitts", task: "Sewing", assignee: "BRITTANY", status: "In Progress", dueTime: "11:00 AM", priority: "High" },
+      { job: "Demo — NASA Edu Bag 1", task: "Assembly", assignee: "JAMES", status: "Not Started", dueTime: "1:00 PM", priority: "" },
+    ],
+    pipeline: [], summary: 'Demo mode — connect your Google Sheet to see real data.'
+  };
+}
+
+// Initial load
+loadData();
+</script>
+</body>
+</html>
